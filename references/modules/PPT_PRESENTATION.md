@@ -74,6 +74,30 @@ references/ppt/
 封面 → 研究动机 → 相关工作 → 方法 → 实验 → 结论 → Q&A
 ```
 
+## 关键防错：必须保留模板结构
+
+**绝对不要从零写 HTML 文件。** 必须先拷贝模板，再替换 `<!-- SLIDES_HERE -->`。
+
+模板包含以下不可缺失的结构，翻页依赖它们：
+
+```html
+<body>
+  <canvas id="bg-dark" class="bg"></canvas>    <!-- WebGL 深色背景 -->
+  <canvas id="bg-light" class="bg"></canvas>   <!-- WebGL 浅色背景 -->
+  <div id="hint">← → 翻页 · B 静态 · ESC 索引</div>
+
+  <div id="deck">                               <!-- ⚠️ 翻页容器，缺失则无法翻页 -->
+    <!-- 在此处插入 <section class="slide ..."> 页面 -->
+    <!-- 替换 <!-- SLIDES_HERE --> 占位符 -->
+  </div>
+
+  <div id="nav"></div>                          <!-- 底部圆点导航 -->
+  <script>/* WebGL + 翻页 + 动效 JS */</script>
+</body>
+```
+
+**自检**：生成后运行 `grep -c 'id="deck"' index.html`，结果必须为 1。
+
 ## 注意事项
 
 - 风格 A 和 B **不能混用**
