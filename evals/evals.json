@@ -1,0 +1,78 @@
+{
+  "skill_name": "academic-research",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "帮我梳理一下深度学习在医学影像分割领域的研究现状，我想写一篇综述",
+      "expected_output": "输出结构化的文献综述框架，按主题组织研究现状，包含研究方法对比和研究空白",
+      "files": [],
+      "expectations": [
+        "输出包含研究现状、研究分类、研究空白等标准综述结构",
+        "按主题（如U-Net、Transformer、半监督学习等）组织文献",
+        "包含方法对比表格",
+        "指出当前研究的局限性和未来方向"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "我有一组实验数据在 experiment.csv 里，包含对照组和实验组的测量值，帮我做个统计分析，看看两组有没有显著差异",
+      "expected_output": "输出数据分析报告，包含描述性统计、正态性检验、t检验或非参数检验结果",
+      "files": [],
+      "expectations": [
+        "提供完整的Python代码用于数据读取和分析",
+        "包含描述性统计（均值、标准差等）",
+        "包含适当的假设检验（t检验或Mann-Whitney U）",
+        "解释p值和效应量的实际意义"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "帮我从损失函数的定义出发，推导线性回归的正规方程解",
+      "expected_output": "完整的公式推导过程，从MSE损失函数到正规方程的每一步",
+      "files": [],
+      "expectations": [
+        "使用LaTeX格式的数学公式",
+        "从MSE损失函数定义开始",
+        "展示矩阵求导过程",
+        "最终得到正规方程 θ = (X^T X)^{-1} X^T y",
+        "每一步都有解释说明"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "帮我润色这段英文摘要，要投IEEE的会议：In this paper, we propose a new method for image classification. Our method uses deep learning and gets good results on many datasets. The experiments show our method is better than other methods.",
+      "expected_output": "润色后的学术英文摘要，包含修改说明",
+      "files": [],
+      "expectations": [
+        "将口语化表达改为学术表达（如good results→competitive performance）",
+        "增加具体的技术细节描述",
+        "使用IEEE会议论文的写作风格",
+        "提供修改说明表格"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "什么是梯度下降法？它和随机梯度下降有什么区别？为什么深度学习用SGD而不是普通梯度下降？",
+      "expected_output": "对梯度下降法概念的清晰解释，包含对比和实际应用说明",
+      "files": [],
+      "expectations": [
+        "给出梯度下降的直觉解释和数学定义",
+        "对比批量梯度下降、随机梯度下降和小批量梯度下降",
+        "解释为什么SGD在深度学习中更常用",
+        "给出具体例子或图示说明"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "我要写一份计算机视觉方向的开题报告，研究方向是基于Transformer的医学图像分割，帮我写一下研究背景和技术路线部分",
+      "expected_output": "开题报告的研究背景和技术路线部分",
+      "files": [],
+      "expectations": [
+        "研究背景从宏观到具体，逻辑清晰",
+        "技术路线包含具体的方法和步骤",
+        "体现创新点和可行性分析",
+        "格式符合开题报告规范"
+      ]
+    }
+  ]
+}
