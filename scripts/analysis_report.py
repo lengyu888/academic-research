@@ -562,6 +562,10 @@ def main():
     parser.add_argument('--figures', '-f', action='store_true', help='Generate matplotlib figures')
     parser.add_argument('--fig-dir', help='Figure output directory (default: figures/ alongside .tex)')
     parser.add_argument('--title', help='Report title')
+    parser.add_argument('--no-clean', action='store_true', dest='no_clean',
+                       help='保留编译中间文件 (默认编译成功后自动清理)')
+    parser.add_argument('--keep-intermediates', action='store_true', dest='no_clean',
+                       help='同 --no-clean')
     args = parser.parse_args()
 
     if not os.path.exists(args.file):
@@ -595,17 +599,59 @@ def main():
                                   'references', 'latex', 'scripts', 'compile.py')
         if os.path.exists(compile_py):
             print(f"[INFO] Compiling PDF...")
-            result = subprocess.run(['uv', 'run', 'python', compile_py, out_tex], check=False)
+            compile_cmd = ['uv', 'run', 'python', compile_py, out_tex]
+            if args.no_clean:
+                compile_cmd.append('--no-clean')
+            result = subprocess.run(compile_cmd, check=False)
             if result.returncode == 0:
                 pdf_path = os.path.splitext(out_tex)[0] + '.pdf'
                 if os.path.exists(pdf_path):
                     print(f"[OK] PDF generated: {pdf_path}")
+                    # 清理中间文件（默认行为）
+                    if not args.no_clean:
+                        _clean_intermediates(out_tex)
                 else:
                     print("[WARN] Compilation finished but PDF not found", file=sys.stderr)
             else:
                 print(f"[ERROR] Compilation failed with exit code {result.returncode}", file=sys.stderr)
         else:
             print("[WARN] compile.py not found, skipping PDF compilation", file=sys.stderr)
+
+
+# ── 清理中间文件 ──────────────────────────────────────────────────
+
+AUX_EXTS = {
+    '.aux', '.log', '.out', '.xdv', '.fls', '.fdb_latexmk',
+    '.synctex.gz', '.bbl', '.bcf', '.run.xml', '.toc', '.lof',
+    '.lot', '.blg', '.nav', '.snm', '.vrb', '-blx.bib',
+}
+
+
+def _clean_intermediates(tex_path: str):
+    """删除 LaTeX 编译产生的中间文件，只保留 .tex 和 .pdf。"""
+    import glob as _glob
+    base = os.path.splitext(tex_path)[0]
+    stem = os.path.basename(base)
+    d = os.path.dirname(os.path.abspath(tex_path))
+    cleaned = 0
+    for item in os.listdir(d):
+        # 只处理与当前 .tex 关联的文件
+        if not item.startswith(stem):
+            continue
+        suffix = item[len(stem):]
+        if suffix == '.tex' or suffix == '.pdf':
+            continue
+        if suffix in AUX_EXTS or any(suffix.endswith(ext) for ext in {
+            '-blx.bib', '.sagetex.sage', '.sagetex.py', '.synctex.gz',
+            '.run.xml', '.fdb_latexmk',
+        }):
+            try:
+                os.unlink(os.path.join(d, item))
+                cleaned += 1
+            except OSError:
+                pass
+    if cleaned > 0:
+        print(f"[CLEAN] Removed {cleaned} intermediate file(s) — only .tex and .pdf retained")
 
 
 if __name__ == '__main__':

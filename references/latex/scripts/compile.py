@@ -164,7 +164,8 @@ class LaTeXCompiler:
             print("[WARNING] Shell escape enabled. Only use with trusted sources.")
 
     def compile(
-        self, watch: bool = False, biber: bool = False, outdir: Optional[str] = None
+        self, watch: bool = False, biber: bool = False, outdir: Optional[str] = None,
+        auto_clean: bool = True,
     ) -> int:
         """
         Compile the LaTeX document.
@@ -173,6 +174,7 @@ class LaTeXCompiler:
             watch: Enable continuous compilation mode
             biber: Use biber instead of bibtex
             outdir: Output directory for generated files
+            auto_clean: Auto-clean intermediate files after success
 
         Returns:
             Exit code (0 for success)
@@ -188,53 +190,47 @@ class LaTeXCompiler:
 
         # If recipe is specified, use recipe-based compilation
         if self.recipe:
-            return self._compile_with_recipe(outdir)
+            ret = self._compile_with_recipe(outdir)
+        else:
+            ret = self._compile_latexmk(watch, biber)
 
+        # Auto-clean after success
+        if ret == 0 and auto_clean:
+            self.clean()
+
+        return ret
+
+    def _compile_latexmk(self, watch: bool, biber: bool) -> int:
+        """使用 latexmk 编译。"""
         print(f"[INFO] Compiling {self.tex_file.name} with {self.compiler}")
         print(f"[INFO] Working directory: {self.work_dir}")
         self._maybe_warn_shell_escape()
 
-        # Build latexmk command
         cmd = ["latexmk"]
-
-        # Add compiler-specific options
         cmd.extend(self._latexmk_engine_args())
+        cmd.extend([
+            "-interaction=nonstopmode",
+            "-file-line-error",
+            "-synctex=1",
+        ])
 
-        # Add common options
-        cmd.extend(
-            [
-                "-interaction=nonstopmode",
-                "-file-line-error",
-                "-synctex=1",
-            ]
-        )
-
-        # Biber support
         if biber:
             cmd.append("-bibtex")
 
-        # Watch mode
         if watch:
             cmd.append("-pvc")
             print("[INFO] Watch mode enabled. Press Ctrl+C to stop.")
 
-        # Add input file
         cmd.append(str(self.tex_file))
 
-        # Run compilation
         try:
-            result = subprocess.run(
-                cmd,
-                cwd=self.work_dir,
-                capture_output=False,
-            )
+            result = subprocess.run(cmd, cwd=self.work_dir, capture_output=False)
             if result.returncode == 0:
                 pdf_file = self.tex_file.with_suffix(".pdf")
                 print(f"\n[SUCCESS] PDF generated: {pdf_file}")
             else:
                 print(f"\n[ERROR] Compilation failed with exit code {result.returncode}")
             return result.returncode
-
         except KeyboardInterrupt:
             print("\n[INFO] Compilation stopped by user")
             return 0
@@ -243,7 +239,10 @@ class LaTeXCompiler:
             return 1
 
     def _compile_with_recipe(self, outdir: Optional[str] = None) -> int:
-        """Compile using a predefined recipe (VS Code LaTeX Workshop style)."""
+        """Compile using a predefined recipe (VS Code LaTeX Workshop style).
+
+        Returns exit code. 0 = PDF generated (with .tex stem as filename).
+        """
         if self.recipe not in self.RECIPES:
             print(f"[ERROR] Unknown recipe: {self.recipe}")
             print(f"[INFO] Available recipes: {', '.join(self.RECIPES.keys())}")
@@ -327,6 +326,14 @@ class LaTeXCompiler:
             print(f"\n[ERROR] PDF not found: {pdf_file}")
             return 1
 
+    # 中间文件扩展名（编译产物，非最终输出）
+    AUX_EXTENSIONS = {
+        '.aux', '.log', '.out', '.xdv', '.fls', '.fdb_latexmk',
+        '.synctex.gz', '.bbl', '.bcf', '.run.xml', '.toc', '.lof',
+        '.lot', '.blg', '.nav', '.snm', '.vrb', '-blx.bib',
+        '.pyg', '.sagetex.sage', '.sagetex.py', '.listing',
+    }
+
     def clean(self, full: bool = False) -> int:
         """
         Clean auxiliary files.
@@ -347,12 +354,46 @@ class LaTeXCompiler:
 
         try:
             result = subprocess.run(cmd, cwd=self.work_dir, capture_output=True)
+            # Also clean files latexmk might miss
+            self._clean_residuals()
             if result.returncode == 0:
-                print("[SUCCESS] Auxiliary files cleaned")
+                print("[SUCCESS] Auxiliary files cleaned — only .tex and .pdf retained")
             return result.returncode
         except Exception as e:
             print(f"[ERROR] {e}")
             return 1
+
+    def _clean_residuals(self):
+        """删除 latexmk -c 可能遗漏的中间文件（如 -blx.bib, .run.xml 等）。"""
+        tex_stem = self.tex_file.stem
+        for item in self.work_dir.iterdir():
+            if not item.is_file():
+                continue
+            # 匹配 <tex_stem>.<ext> 或 <tex_stem>-blx.bib 等派生文件
+            name = item.name
+            if not name.startswith(tex_stem):
+                continue
+            suffix = name[len(tex_stem):]
+            if suffix == '.tex' or suffix == '.pdf':
+                continue
+            if suffix in self.AUX_EXTENSIONS or (suffix.startswith('.') and suffix[1:] in {
+                'aux', 'log', 'out', 'xdv', 'fls', 'fdb_latexmk', 'synctex.gz',
+                'bbl', 'bcf', 'run.xml', 'toc', 'lof', 'lot', 'blg',
+                'nav', 'snm', 'vrb', 'pyg', 'listing',
+            }):
+                try:
+                    item.unlink()
+                except OSError:
+                    pass
+            # 匹配 -blx.bib, .sagetex.sage 等复合后缀
+            elif any(suffix.endswith(ext) for ext in {
+                '-blx.bib', '.sagetex.sage', '.sagetex.py', '.synctex.gz',
+                '.run.xml', '.fdb_latexmk',
+            }):
+                try:
+                    item.unlink()
+                except OSError:
+                    pass
 
 
 def main():
@@ -410,6 +451,10 @@ Examples:
     )
     parser.add_argument("--clean", action="store_true", help="清理辅助文件")
     parser.add_argument("--clean-all", action="store_true", help="清理所有生成文件 (含 PDF)")
+    parser.add_argument("--no-clean", action="store_true", dest="no_clean",
+                       help="保留所有编译中间文件 (默认编译成功后自动清理)")
+    parser.add_argument("--keep-intermediates", action="store_true", dest="no_clean",
+                       help="同 --no-clean")
     parser.add_argument("--outdir", "-o", help="输出目录 (仅 latexmk 配置支持)")
 
     args = parser.parse_args()
@@ -440,6 +485,7 @@ Examples:
                 watch=args.watch,
                 biber=args.biber,
                 outdir=args.outdir,
+                auto_clean=not args.no_clean,
             )
         )
 

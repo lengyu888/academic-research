@@ -117,7 +117,7 @@ metadata:
 | `topic-proposal` | 五维评估 → 创新点矩阵 → 开题报告 | 候选方向评分、创新定位 | `TOPIC_PROPOSAL.md` |
 | `experiment-design` | 假设 → 设计类型 → 样本量 → 流程 | 统计功效、变量控制、可行性评估 | `EXPERIMENT_DESIGN.md` |
 | `paper-submission` | Cover Letter + Rebuttal + 投稿检查 | 期刊匹配、逐条回复策略 | `PAPER_SUBMISSION.md` |
-| `academic-poster` | 单文件 HTML（A0，可打印 PDF） | 主图优先、字数预算、视觉层级 | `ACADEMIC_POSTER.md` |
+| `academic-poster` | 单文件 HTML（A0，可打印 PDF），默认中文 | 主图优先、字数预算、视觉层级 | `ACADEMIC_POSTER.md` |
 | `code-documentation` | README + 复现说明 + docstring | 安装→快速开始→复现→引用 | `CODE_DOCUMENTATION.md` |
 
 **PPT制作**：
