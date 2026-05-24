@@ -164,6 +164,67 @@ We hope these revisions address all concerns satisfactorily.
 - 被拒后冷静分析原因再改投，不要无修改直接转投
 - 预印本（arXiv）与正式投稿不冲突，但注意目标期刊的预印本政策
 
+---
+
+## 改投场景（Resubmission Workflow）
+
+当论文被拒后改投其他期刊/会议时，使用以下工作流。此场景通常与 `paper-polish` 模块联动。
+
+### 触发场景
+
+- 论文被 A 期刊/会议拒稿，改投 B 期刊/会议
+- 需要根据审稿意见修订论文
+- Cover Letter 需要说明修订历史
+
+### 改投流程
+
+1. **分析审稿意见**：提取核心问题，评估哪些必须修改、哪些可以保留原样
+2. **修订论文**（联动 `paper-polish`）：
+   - 补充审稿人要求的实验（对比实验、消融实验）
+   - 增加可解释性分析（可视化、案例分析）
+   - 修正写作问题
+   - 扩展相关工作（引用审稿人推荐的论文）
+3. **调整贡献表述**：针对新目标期刊的征稿范围，重新组织 Abstract 和 Introduction 的侧重点
+4. **Cover Letter 中说明修订历史**：
+   - 明确说明"This is a substantially revised version"
+   - 概述针对审稿意见做了哪些主要修改
+   - 强调修订后的工作与新目标期刊的契合度
+
+### 改投 Cover Letter 模板
+
+```
+[日期]
+
+Dear Editor,
+
+We are pleased to submit our revised manuscript entitled "[标题]"
+for consideration for publication in [目标期刊].
+
+[第1-3段：同标准 Cover Letter]
+
+Prior Submission History.
+This manuscript is a substantially revised version of earlier work
+submitted to [原投稿期刊/会议]. Based on previous reviewer feedback,
+we have significantly expanded the experimental evaluation with
+[具体修改：additional comparison experiments / ablation studies /
+interpretability analysis]. These additions directly address the
+concerns raised regarding [审稿人核心问题].
+
+We confirm that this manuscript has not been published elsewhere
+and is not under consideration by any other venue. All authors
+have read and approved the final version.
+
+Sincerely,
+[通讯作者]
+```
+
+### 改投注意事项
+
+- 不要在 Cover Letter 中抱怨原审稿人或原期刊
+- 修订要实质性，不要只改文字不改内容
+- 如果审稿人要求的实验确实无法完成，在 Cover Letter 中诚实地说明原因
+- 针对新目标期刊调整论文的 framing（如从"方法创新"转向"应用价值"）
+
 ## 输出格式
 
 默认 Markdown。用户要求 DOCX 或 LaTeX 时，参考 `OUTPUT_DOCX.md` 或 `OUTPUT_LATEX.md`。

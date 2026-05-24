@@ -1,6 +1,6 @@
 # academic-research
 
-> 学术科研全流程智能助手 — Claude Code Skill v3.0
+> 学术科研全流程智能助手 — Claude Code Skill v4.0
 
 覆盖从选题开题、文献综述、实验设计、数据处理、公式推导、论文润色、投稿准备、代码文档、学术海报、答辩PPT到学位论文的**13个模块完整研究闭环**。
 
@@ -29,6 +29,8 @@ git clone https://github.com/your-user/academic-research.git \
 | "推导一下这个公式" | `formula-derivation` |
 | "这段文字润色一下去掉AI味" | `paper-polish` |
 | "帮我写个 Cover Letter" | `paper-submission` |
+| "论文被拒了，帮我改投" | `paper-polish` + `paper-submission` |
+| "这个中文论文润色一下" | `paper-polish`（保持中文） |
 | "生成项目 README 和复现说明" | `code-documentation` |
 | "做个会议海报" | `academic-poster` |
 | "做个答辩 PPT" | `ppt-presentation` |
@@ -46,7 +48,7 @@ academic-research/
 ├── scripts/                      # 共享工具脚本
 │   ├── dep_check.py              #   依赖预检 + 按需安装
 │   ├── quick_stats.py            #   纯 stdlib 数据概览（秒级，无需 pip）
-│   ├── analysis_report.py        #   CSV → .tex → PDF 一键管道
+│   ├── analysis_report.py        #   CSV → .tex → PDF 一键管道（v4.0: +图表生成）
 │   └── encoding_safe.py          #   Windows GBK 终端安全包装
 │
 ├── references/
@@ -92,9 +94,9 @@ academic-research/
 | 模块 | 输入 | 输出 | 关键特性 |
 |------|------|------|----------|
 | `literature-review` | 研究主题 | 综述框架 + 对比表 + 空白分析 | 避免流水账式综述 |
-| `data-processing` | CSV/Excel/描述 | 统计报告 + 可视化 + 结论 | 效应量必报，4个工具脚本 |
+| `data-processing` | CSV/Excel/描述 | 统计报告 + 图表 + PDF | `--figures` 自动生成 4 类图表，效应量必报 |
 | `formula-derivation` | 目标公式 | 推导全过程 + 验证 | 每步有依据，强制验证 |
-| `paper-polish` | .docx/.tex/文本 | 润色对照 + AI味诊断 | 8种中文AI味特征检测 |
+| `paper-polish` | .docx/.tex/文本 | 润色对照 + AI味诊断 + 语言保持 | 8种中文AI味特征检测，默认保持原文语言 |
 
 ### 决策支持层
 
@@ -108,7 +110,7 @@ academic-research/
 
 | 模块 | 核心能力 |
 |------|----------|
-| `paper-submission` | Cover Letter 模板、Rebuttal 逐条回复策略、期刊匹配、22项投稿检查 |
+| `paper-submission` | Cover Letter 模板、Rebuttal 逐条回复策略、期刊匹配、改投场景工作流 |
 | `code-documentation` | README 模板、复现说明（Reproduction Guide）、docstring 规范 |
 | `academic-poster` | HTML/LaTeX 双模式、A0 布局、杂志风/瑞士风双风格 |
 | `ppt-presentation` | 单文件 HTML 横向翻页、WebGL 背景、Motion One 动效 |
@@ -150,6 +152,7 @@ academic-research/
 
 | 版本 | 日期 | 变更 |
 |------|------|------|
+| v4.0 | 2026-05-24 | 修复数据分析报告：`analysis_report.py` 新增 `--figures` 图表生成 + 修复 f-string 渲染；论文润色：新增语言保持原则（默认不翻译）+ 审稿意见驱动修订；论文投稿：新增改投场景工作流 |
 | v3.0 | 2026-05-24 | 新增5模块（topic-proposal/experiment-design/paper-submission/academic-poster/code-documentation）→ 13模块全流程闭环 |
 | v2.0 | 2026-05-23 | 新增工具脚本层（dep_check/quick_stats/analysis_report/encoding_safe）、平台兼容 |
 | v1.4 | 2026-05 | 初始版本：8模块 + docx/tex输出 |

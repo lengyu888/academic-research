@@ -92,6 +92,13 @@ sns.heatmap(df.corr(), annot=True, cmap='coolwarm')
 sns.scatterplot(data=df, x='x', y='y', hue='category')
 ```
 
+**图表保存规则**：当需要将图表嵌入 PDF 报告时，必须先 `plt.savefig()` 再 `\includegraphics`：
+```python
+# 正确：先保存再引用
+plt.savefig('figures/fig1.png', dpi=150, bbox_inches='tight')
+# 在 .tex 中: \includegraphics[width=0.85\textwidth]{fig1.png}
+```
+
 ### 5. 效应量（必须报告）
 
 | 效应量 | 计算 | 小/中/大 |
@@ -168,6 +175,25 @@ sns.scatterplot(data=df, x='x', y='y', hue='category')
 # 步骤 1：快速了解数据（stdlib，无需安装任何包）
 python scripts/quick_stats.py data.csv
 
-# 步骤 2：生成 LaTeX 报告
+# 步骤 2：生成 LaTeX 报告（含图表）
+python scripts/analysis_report.py data.csv --group-col model --figures --compile
+
+# 纯文本报告（无图表）
 python scripts/analysis_report.py data.csv --group-col model --compile
 ```
+
+**`analysis_report.py` 参数说明**（v4.0）：
+
+| 参数 | 说明 |
+|------|------|
+| `--figures` / `-f` | 自动生成 matplotlib 图表（箱线图、分组对比、相关热力图、交互热力图），保存到 `figures/` 目录 |
+| `--compile` / `-c` | 编译 .tex 为 PDF |
+| `--group-col VAR` | 按指定列分组对比 |
+| `--fig-dir DIR` | 自定义图表输出目录（默认与 .tex 同目录下的 `figures/`） |
+| `--output` / `-o` | 自定义 .tex 输出路径 |
+| `--title TEXT` | 自定义报告标题 |
+
+**图表自动嵌入**：使用 `--figures` 时，脚本会：
+1. 在 `figures/` 目录生成 PNG 图表
+2. 在 .tex 中通过 `\graphicspath{{figures/}}` + `\includegraphics` 自动嵌入
+3. 图表包括：各变量箱线图、分组对比柱状图、相关系数热力图、分组×变量交互热力图
