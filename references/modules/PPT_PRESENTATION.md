@@ -98,43 +98,84 @@ references/ppt/
 
 **自检**：生成后运行 `grep -c 'id="deck"' index.html`，结果必须为 1。
 
-## 动效系统规则（Motion One）
+## 动效系统规则（Motion One）— 强制执行
 
-动画由 Motion One 驱动。**违反以下规则会导致页面不可见或动效失效**：
+动画由 Motion One 驱动。**违反以下规则会导致页面不可见或动效失效**。这些是硬性要求，不是建议。
 
-### 核心规则
+### 规则 1：`data-anim` 绝对不能加在 `<section>` 上
 
-1. **`data-anim` 只加在 `<section>` 内部的子元素上**（标题、卡片、列等），**绝不能加在 `<section>` 本身**
-   - CSS 规则 `body.motion-ready [data-anim]{opacity:0}` 会隐藏所有带 `data-anim` 的元素
-   - 如果 `data-anim` 在 `<section>` 上，整个页面会被隐藏！
+CSS 规则 `body.motion-ready [data-anim]{opacity:0}` 会隐藏所有带 `data-anim` 的元素。如果 `data-anim` 在 `<section>` 上，**整个页面会被隐藏**。
 
-2. **`<section>` 上选 recipe 的方式**：
-   - 封面/尾页：加 `hero` class（如 `<section class="slide dark hero">`），自动触发 hero 动画
-   - 引用页：`data-animate="quote"`，子元素用 `data-anim="line"`
-   - 左右对比：`data-animate="directional"`，子元素用 `data-anim="left"` / `data-anim="right"`
-   - 流水线：`data-animate="pipeline"`，子元素用 `data-anim="step"`
-   - 其他页：不加任何属性，默认 cascade 动画
+`data-anim` **只加在 `<section>` 内部的子元素上**（标题、卡片、列等）。
 
-3. **每个需要动画的子元素加 `data-anim`**：
-   ```html
-   <!-- 正确 -->
-   <section class="slide dark hero">
-     <h1 data-anim>标题</h1>
-     <p data-anim>内容</p>
-   </section>
+```html
+<!-- 正确 -->
+<section class="slide dark hero">
+  <h1 data-anim>标题</h1>
+  <p data-anim>内容</p>
+</section>
 
-   <!-- 错误！整个页面会被隐藏 -->
-   <section class="slide dark" data-anim="fade-up">
-     <h1>标题</h1>
-   </section>
-   ```
+<!-- 错误！整个页面会被隐藏 -->
+<section class="slide dark" data-anim="fade-up">
+  <h1>标题</h1>
+</section>
+```
+
+### 规则 2：每个 `<section>` 必须声明动画 recipe
+
+每个 `<section class="slide">` 必须通过以下方式之一声明其动画 recipe：
+
+**风格 A（杂志风）recipe 选择：**
+
+| 页面类型 | `<section>` 属性 | 子元素 `data-anim` 值 |
+|----------|------------------|----------------------|
+| 封面/尾页/幕封 | 加 `hero` class（如 `class="slide dark hero"`） | 无值（`data-anim`） |
+| 引用页 | `data-animate="quote"` | `"line"` |
+| 左右对比页 | `data-animate="directional"` | `"left"` / `"right"` |
+| 流水线页 | `data-animate="pipeline"` | `"step"` |
+| 其他普通页 | 不加 `data-animate`（默认 cascade） | 无值（`data-anim`） |
+
+**风格 B（瑞士风）recipe 选择（21 种）：**
+
+| 页面类型 | 推荐 recipe |
+|----------|-------------|
+| 封面 | `hero` |
+| 数据/KPI 页 | `progression` / `bar-grow` / `measure-up` |
+| 核心论点页 | `statement` / `split-statement` |
+| 网格/多卡片页 | `grid-reveal` / `four-cards` / `matrix-fill` |
+| 时间线页 | `timeline-walk` |
+| 流程图页 | `stack-build` / `loop-form` / `system-diagram` |
+| 对比页 | `duo-mirror` |
+| 引用/宣言页 | `manifesto` |
+| 图片页 | `image-hero` |
+| 收束页 | `statement` |
+
+### 规则 3：每个语义子元素必须有 `data-anim`
+
+`<section>` 内部的每个需要入场动画的语义元素（kicker、标题、lead、callout、stat-card、figure 等）**必须**加 `data-anim` 属性。
+
+### 规则 4：封面和幕封必须有 `hero` class
+
+封面页（第 1 页）和章节幕封页必须加 `hero` class：
+```html
+<section class="slide dark hero">  <!-- 封面/幕封 -->
+```
 
 ### 自检命令
 
+生成后必须运行以下检查：
+
 ```bash
-# 检查是否有 data-anim 错误地加在 section 上
+# 检查 1：data-anim 是否错误地加在 section 上（结果应为空）
 grep -n 'class="slide.*data-anim' index.html
-# 结果应该为空（无匹配）
+
+# 检查 2：所有 section 是否都有 data-animate 或 hero class
+grep -n 'class="slide' index.html
+# 每行应包含 "hero" 或该行附近有 data-animate="..."
+
+# 检查 3：子元素是否有 data-anim
+grep -c 'data-anim' index.html
+# 结果应 ≥ 页面数 × 2（每页至少 2 个动画元素）
 ```
 
 ## 注意事项

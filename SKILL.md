@@ -125,6 +125,7 @@ metadata:
 - 输出：单文件 HTML 横向翻页 PPT，含 WebGL 背景、Lucide 图标、Motion One 动效
 - **生成前必须读取** `references/ppt/SKILL.md`（完整工作流、类名预检、布局规则、自检清单）
 - 路由入口见 `references/modules/PPT_PRESENTATION.md`
+- **动效强制要求**：每个 `<section>` 必须有 `data-animate` recipe 或 `hero` class；每个语义子元素必须有 `data-anim`；封面/幕封必须有 `hero` class。详见 `PPT_PRESENTATION.md` 动效系统规则
 
 **LaTeX论文**：
 - 脚本路径：`references/latex/scripts/`，通过 `uv run python` 执行
@@ -196,6 +197,13 @@ metadata:
 - [ ] 符合模块输出模板的结构要求
 - [ ] 表格、公式、代码块格式正确
 - [ ] DOCX/LaTeX 输出通过验证（validate.py / compile.py）
+
+**PPT 动效质量**（仅 PPT 模块）：
+- [ ] 每个 `<section>` 都有 `data-animate` recipe 或 `hero` class
+- [ ] `data-anim` 没有加在 `<section>` 上（会导致页面隐藏）
+- [ ] 封面和幕封页有 `hero` class
+- [ ] 每页至少 2 个子元素有 `data-anim` 属性
+- [ ] 运行 `grep -n 'class="slide.*data-anim' index.html` 结果为空
 
 **用户体验**：
 - [ ] 输出可直接使用（而非需要大量后续修改）
