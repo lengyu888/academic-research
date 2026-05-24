@@ -119,7 +119,8 @@ metadata:
 **PPT制作**：
 - 模板：`references/ppt/assets/template.html`（杂志风A）或 `template-swiss.html`（瑞士风B）
 - 输出：单文件 HTML 横向翻页 PPT，含 WebGL 背景、Lucide 图标、Motion One 动效
-- 详细流程和自检清单见 `references/modules/PPT_PRESENTATION.md`
+- **生成前必须读取** `references/ppt/SKILL.md`（完整工作流、类名预检、布局规则、自检清单）
+- 路由入口见 `references/modules/PPT_PRESENTATION.md`
 
 **LaTeX论文**：
 - 脚本路径：`references/latex/scripts/`，通过 `uv run python` 执行
