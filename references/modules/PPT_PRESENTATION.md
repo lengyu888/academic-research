@@ -98,6 +98,45 @@ references/ppt/
 
 **自检**：生成后运行 `grep -c 'id="deck"' index.html`，结果必须为 1。
 
+## 动效系统规则（Motion One）
+
+动画由 Motion One 驱动。**违反以下规则会导致页面不可见或动效失效**：
+
+### 核心规则
+
+1. **`data-anim` 只加在 `<section>` 内部的子元素上**（标题、卡片、列等），**绝不能加在 `<section>` 本身**
+   - CSS 规则 `body.motion-ready [data-anim]{opacity:0}` 会隐藏所有带 `data-anim` 的元素
+   - 如果 `data-anim` 在 `<section>` 上，整个页面会被隐藏！
+
+2. **`<section>` 上选 recipe 的方式**：
+   - 封面/尾页：加 `hero` class（如 `<section class="slide dark hero">`），自动触发 hero 动画
+   - 引用页：`data-animate="quote"`，子元素用 `data-anim="line"`
+   - 左右对比：`data-animate="directional"`，子元素用 `data-anim="left"` / `data-anim="right"`
+   - 流水线：`data-animate="pipeline"`，子元素用 `data-anim="step"`
+   - 其他页：不加任何属性，默认 cascade 动画
+
+3. **每个需要动画的子元素加 `data-anim`**：
+   ```html
+   <!-- 正确 -->
+   <section class="slide dark hero">
+     <h1 data-anim>标题</h1>
+     <p data-anim>内容</p>
+   </section>
+
+   <!-- 错误！整个页面会被隐藏 -->
+   <section class="slide dark" data-anim="fade-up">
+     <h1>标题</h1>
+   </section>
+   ```
+
+### 自检命令
+
+```bash
+# 检查是否有 data-anim 错误地加在 section 上
+grep -n 'class="slide.*data-anim' index.html
+# 结果应该为空（无匹配）
+```
+
 ## 注意事项
 
 - 风格 A 和 B **不能混用**
